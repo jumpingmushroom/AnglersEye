@@ -19,14 +19,16 @@ works, and the panel repeats the fish and the forecast.*
 ## Features
 
 1. **Fish identification.** Look at a fish and its hover text gains its stars and a bait line:
-   the bait it wants, ✔ with how many you carry, or ✖. This only works for fish your crosshair
+   the bait it wants and how many you carry (e.g. `+ (x12)`), or ✖ if you carry none. The HUD font
+   has no star glyph, so stars appear as `*` in hover text. This only works for fish your crosshair
    can reach — in practice fish at or near the surface; the hover raycast doesn't reach fish
    further underwater. A small label above your own float names the fish nibbling or heading for
    it, and says whether the bait on your hook works on it ("bait ok" or "needs <bait>").
 2. **Smart bait.** When you cast, Angler's Eye equips the carried bait that works best on the
-   fish you're aiming at, instead of whatever the game would otherwise pick (the item nearest the
-   top-left of your inventory). If you carry none of its bait, it names the bait you need and
-   still casts with vanilla's own choice.
+   fish you're aiming at, instead of whatever the game would otherwise pick (the bait you last
+   equipped if you still have it, otherwise the stack nearest the top-left of your inventory). If
+   you carry none of its bait, it names the bait you need and still casts with vanilla's own
+   choice.
 3. **Bite cue.** A hookable nibble makes the panel flash **BITE!** for exactly as long as you
    have to hook it, with a short sound.
 4. **Struggle indicator.** While a fish is hooked, the panel shows **REEL** when it's calm and
@@ -37,9 +39,9 @@ works, and the panel repeats the fish and the forecast.*
    line length, the fish's level, your Fishing skill and your current stamina.
 6. **Optional assists, off by default:**
    - **Smart reel**: while you hold Block, it reels only when the fish is calm. Stamina costs
-     stay vanilla — it just does the waiting for you. Because it's the game's own Block that's
-     held rather than an actual reel action, pausing during a struggle also pauses the Fishing
-     skill gain that reeling would otherwise give you during those moments.
+     stay vanilla — it just does the waiting for you. Fishing skill only rises while the game's
+     own reel code is running, and smart reel skips that during a struggle, so your Fishing skill
+     won't rise for the time it spends waiting one out.
    - **Extended hook window**: up to 1.5 s to hook a nibble instead of vanilla's 0.5 s.
 
 ## How it works
@@ -69,13 +71,13 @@ ConfigurationManager (F1). Changes apply immediately.
 | Section | Setting | Default | What it does |
 |---|---|---|---|
 | General | `Enabled` | `true` | Master switch for everything Angler's Eye shows or does. |
-| Identify | `HoverInfo` | `true` | Stars and bait (✔/✖) on a fish's hover text. |
+| Identify | `HoverInfo` | `true` | On a fish's hover text, the bait it takes and how many you carry, or ✖ if none. |
 | Identify | `FloatLabel` | `true` | Label above your float naming the fish and the bait status. |
 | Identify | `ShowOdds` | `false` | Also show the bait's chance per nibble as a percentage. |
 | Bait | `SmartBait` | `true` | Equip the best carried bait on cast; say what's needed if you carry none. |
 | Bait | `AimConeDegrees` | `10` | How far off your aim (degrees) a fish still counts as the target (3–30). |
 | Cues | `BiteCue` | `true` | BITE! flash while a nibble can be hooked. |
-| Cues | `BiteSound` / `BiteVolume` | `true` / `0.7` | Play a sound on a hookable nibble, and its volume (0–1). |
+| Cues | `BiteSound` / `BiteVolume` | `true` / `0.7` | Play a sound on a hookable nibble, and its volume (0–1). Needs BiteCue on. |
 | Cues | `StruggleIndicator` | `true` | REEL / WAIT with a struggle bar while a fish is hooked. |
 | Forecast | `Forecast` | `true` | Estimate whether you can land the fish: can land, tight or unlikely. |
 | Assists | `SmartReel` | `false` | While holding Block, reel only while the fish is calm. |

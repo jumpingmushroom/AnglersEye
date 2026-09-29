@@ -59,7 +59,7 @@ namespace AnglersEye
                 new ConfigDescription("Master switch for everything Angler's Eye shows or does.", null, Attr(100)));
 
             HoverInfo = cfg.Bind("2 - Identify", "HoverInfo", true,
-                new ConfigDescription("When you look at a fish, add its stars and the bait it takes (✔ carried, ✖ not) to the hover text.", null, Attr(90)));
+                new ConfigDescription("When you look at a fish, add its stars and the bait it takes to the hover text: how many you carry, or ✖ if none.", null, Attr(90)));
             FloatLabel = cfg.Bind("2 - Identify", "FloatLabel", true,
                 new ConfigDescription("Show a small label above your float naming the fish heading for it, and whether your bait works on it.", null, Attr(89)));
             ShowOdds = cfg.Bind("2 - Identify", "ShowOdds", false,
@@ -74,7 +74,7 @@ namespace AnglersEye
             BiteCue = cfg.Bind("4 - Cues", "BiteCue", true,
                 new ConfigDescription("Show 'BITE!' in the fishing panel while a nibble can be hooked.", null, Attr(70)));
             BiteSound = cfg.Bind("4 - Cues", "BiteSound", true,
-                new ConfigDescription("Play a short sound on a nibble you can hook.", null, Attr(69)));
+                new ConfigDescription("Play a short sound on a nibble you can hook. Needs BiteCue on.", null, Attr(69)));
             BiteVolume = cfg.Bind("4 - Cues", "BiteVolume", 0.7f,
                 new ConfigDescription("Volume of the bite sound.", new AcceptableValueRange<float>(0f, 1f), Attr(68)));
             StruggleIndicator = cfg.Bind("4 - Cues", "StruggleIndicator", true,
@@ -84,7 +84,7 @@ namespace AnglersEye
                 new ConfigDescription("Estimate whether you have the stamina to land the fish: can land, tight or unlikely.", null, Attr(60)));
 
             SmartReel = cfg.Bind("6 - Assists", "SmartReel", false,
-                new ConfigDescription("While you hold Block, only reel while the fish is calm. Stamina costs stay vanilla.", null, Attr(50)));
+                new ConfigDescription("While you hold Block, only reel while the fish is calm. Stamina costs stay vanilla. Fishing skill won't rise while it's waiting out a struggle.", null, Attr(50)));
             ExtendedHookWindow = cfg.Bind("6 - Assists", "ExtendedHookWindow", false,
                 new ConfigDescription("Give yourself longer than vanilla's 0.5 s to hook a nibble.", null, Attr(49)));
             HookWindowSeconds = cfg.Bind("6 - Assists", "HookWindowSeconds", 1.0f,
