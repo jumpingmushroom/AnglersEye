@@ -10,6 +10,7 @@ namespace AnglersEye.Core
             try
             {
                 FishCatalog.EnsureBuilt();
+                Compat.EnsureEvaluated();
             }
             catch (Exception e)
             {

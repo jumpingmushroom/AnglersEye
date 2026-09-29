@@ -1,3 +1,4 @@
+using AnglersEye.Core.Model;
 using BepInEx.Configuration;
 
 namespace AnglersEye
@@ -33,6 +34,23 @@ namespace AnglersEye
         private static ConfigurationManagerAttributes Attr(int order, bool advanced = false)
         {
             return new ConfigurationManagerAttributes { Order = order, IsAdvanced = advanced };
+        }
+
+        /// <summary>The config switch for one feature.</summary>
+        public static bool Toggle(Feature f)
+        {
+            switch (f)
+            {
+                case Feature.HoverInfo: return HoverInfo.Value;
+                case Feature.FloatLabel: return FloatLabel.Value;
+                case Feature.SmartBait: return SmartBait.Value;
+                case Feature.BiteCue: return BiteCue.Value;
+                case Feature.StruggleIndicator: return StruggleIndicator.Value;
+                case Feature.Forecast: return Forecast.Value;
+                case Feature.SmartReel: return SmartReel.Value;
+                case Feature.HookWindow: return ExtendedHookWindow.Value;
+                default: return false;
+            }
         }
 
         public static void Bind(ConfigFile cfg)

@@ -33,7 +33,25 @@ namespace AnglersEye.Core
 
         private static void Status(Terminal ctx)
         {
-            Say(ctx, "Angler's Eye " + AnglersEyePlugin.PluginVersion + ": " + FishCatalog.All.Count + " fish known.");
+            Say(ctx, "Angler's Eye " + AnglersEyePlugin.PluginVersion + (PluginConfig.Enabled.Value ? "" : " (disabled)") +
+                     ": " + FishCatalog.All.Count + " fish known.");
+            var on = new List<string>();
+            var off = new List<string>();
+            foreach (Feature f in Enum.GetValues(typeof(Feature)))
+            {
+                if (f == Feature.None)
+                    continue;
+                (Features.On(f) ? on : off).Add(CompatRules.Describe(f));
+            }
+            Say(ctx, "Angler's Eye:   on: " + (on.Count > 0 ? string.Join(", ", on) : "nothing"));
+            Say(ctx, "Angler's Eye:   off: " + (off.Count > 0 ? string.Join(", ", off) : "nothing"));
+            if (Compat.Verdict == null)
+                Say(ctx, "Angler's Eye:   compat: not checked yet (load a world)");
+            else if (Compat.Verdict.Reasons.Count == 0)
+                Say(ctx, "Angler's Eye:   compat: no other fishing mods found");
+            else
+                foreach (string r in Compat.Verdict.Reasons)
+                    Say(ctx, "Angler's Eye:   compat: " + r);
         }
 
         private static void Fish(Terminal ctx)
