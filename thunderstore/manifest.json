@@ -1,0 +1,9 @@
+{
+  "name": "AnglersEye",
+  "version_number": "0.1.0",
+  "website_url": "https://github.com/jumpingmushroom/AnglersEye",
+  "dependencies": [
+    "denikson-BepInExPack_Valheim-5.4.2350"
+  ],
+  "description": "Angler's Eye: a fishing assistant. See which fish is biting and the bait it wants, auto-pick the right bait, bite and struggle cues, and a catch forecast. Vanilla rules untouched. Client-side."
+}
