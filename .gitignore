@@ -24,6 +24,7 @@ thunderstore.toml
 
 # Probe screenshots from build/shot.sh; only cropped release shots are committed
 docs/images/probe*.png
+docs/images/probe*.jpg
 
 # Rig-specific dev loop (deploy to the gaming rig, read its log, screenshots): kept local
 build/deploy.sh

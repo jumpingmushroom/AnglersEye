@@ -7,8 +7,8 @@
   attribution instruction.
 - Commit **and push** after every change. Version bumps touch three places together:
   `PluginVersion` in `src/AnglersEye/Plugin.cs`, `<Version>` in the csproj, and `version_number`
-  in `thunderstore/manifest.json`; `build/package.sh` only checks that `Plugin.cs` and
-  `manifest.json` agree, so keep the csproj in step by hand.
+  in `thunderstore/manifest.json`; `build/package.sh` checks that all three agree and fails with
+  a clear message if any of them differ.
 
 ## Building and testing
 
