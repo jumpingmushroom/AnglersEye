@@ -10,7 +10,7 @@ untouched.
 The rig's `assembly_valheim.dll` (md5 `7fd7feff8dbe94b582463f1e3d48b474`, checked 2026-09-29) is
 identical to the one Earshot decompiled with `ilspycmd` on 2026-09-28. The findings in §1 are
 read from that decompile (`Fish.cs`, `FishingFloat.cs`, `Attack.cs`, `Inventory.cs`,
-`Humanoid.cs`); §1.7 lists what a runtime probe still has to confirm.
+`Humanoid.cs`); §1.7 records a runtime probe's findings.
 
 **Scope:** client-side only. No RPCs, no ZDO writes beyond what vanilla already does for the
 local player, nothing on the server, no ServerSync; works on vanilla servers. Thunderstore
@@ -48,6 +48,10 @@ add content, or need a server install. None is a lightweight vanilla-preserving 
 ---
 
 ## 1. Game behaviour (decompiled 1.0.16)
+
+The prefab values a runtime probe measured are in §1.7; they override the decompile defaults
+quoted below in §1.1–1.5 (e.g. `m_range` 50 not 10, break distance 10 not 4, `m_pullStaminaUse` 0
+not 10).
 
 ### 1.1 Fish identity, level and bait table (`Fish`)
 - `Fish.m_name` is the localisation token shown as the name (`GetHoverName()`).
@@ -121,7 +125,7 @@ With `s = owner.GetSkillFactor(Fishing)` (0..1) and `q` = fish quality:
    picked `FishingBait`). Smart bait's `EquipItem` approach works as designed.
 2. No `hover fish` line was logged: the player's hover raycast does not reach fish under the water
    surface. Hover info therefore only helps for fish the crosshair can reach (surfaced or
-   near-surface); underwater fish are covered by the float label and the pre-cast strip instead.
+   near-surface); underwater fish are covered by the float label and the panel's bait line instead.
 3. Bite clip: `UI_Craft_Finish_01` preferred, falling back to `Ui_Click_01`.
 4. `m_baits` / `m_chance` / `m_staminaUse` / `m_escapeStaminaUse` / escape timing values for every
    fish in `ZNetScene` (fish table below), and the float's reeling numbers (float values below).
@@ -317,3 +321,38 @@ declared locally. Every setting applies live.
   `scp dist/AnglersEye-X.Y.Z.zip equ@192.168.1.160:~/Downloads/`.
 - Thunderstore categories: `client-side`, `utility`, `deep-north-update`, `ai-generated`.
 - No AI attribution in commits, PRs, the README or release notes.
+
+## 3. In-game findings (0.1.0, 2026-09-29)
+
+- Everything worked in the user's test session: hover info, smart bait (it switched away from a
+  wrong bait sitting top-left in the inventory, and gave the "needs bait" message exactly once
+  per cast), the float label, the bite flash and chime, REEL/WAIT, the forecast, smart reel, the
+  extended hook window, the master switch, Scale/OffsetX/OffsetY, the `anglerseye` and
+  `anglerseye fish` console commands, and no Angler's Eye warnings in the BepInEx log.
+- The probe caught a rod-detection bug before testing began: the fishing rod's attack projectile
+  has no `FishingFloat` component, so the plan's original `Tackle.IsRod` rule (§2.1) never
+  matched the real rod. Fixed by detecting the rod from its bait ammo type instead (a weapon
+  whose `m_ammoType` matches the ammo type of a bait in any fish's bait table) — see Ruling 9 in
+  the SDD ledger and §1.7.
+- The HUD font (Valheim-AveriaSerifLibre) lacks the glyphs ★ ✔ ✓ ● ▲ » « (§1.7.6); everything
+  built later avoids them.
+- The first HUD — a small text strip under the crosshair, 18 pt, with ASCII fallbacks for the
+  missing glyphs, repeating vanilla's own distance readout — was rejected on looks in the user's
+  test session. It was redesigned and the redesign was approved. The shipped panel:
+  - sits just above the stamina bar, and moves up to sit above the eitr or adrenaline bar
+    instead while either is visible (the game fades those bars with an Animator `Visible` bool
+    rather than deactivating their roots, so the panel watches that bool rather than
+    `activeInHierarchy`);
+  - is a procedural dark frame with a thin warm-gold edge, not a borrowed vanilla sprite;
+  - uses outlined text at 20 pt, with the state word (REEL / WAIT / BITE!) at 30 pt — REEL green,
+    WAIT amber with a draining struggle bar underneath, BITE! yellow;
+  - shows the catch forecast as words and colour (`can land` green, `tight` amber, `unlikely`
+    red) instead of a glyph;
+  - shows no distance — vanilla's own line-length readout above the crosshair still covers that;
+  - shows the fish's level with the vanilla creature-star sprite (borrowed from `EnemyHud`
+    `level_2`), falling back to `Lv N` text if that sprite is missing;
+  - is paired with a float label above the cast float, outlined text with no backing box, reading
+    `Pike · bait ok` or `needs <bait>`.
+- The bite chime is `UI_Craft_Finish_01`, falling back to `Ui_Click_01` if that clip isn't loaded;
+  the lookup retries (at most every 30 s) rather than giving up forever if neither is loaded yet
+  at the first bite.

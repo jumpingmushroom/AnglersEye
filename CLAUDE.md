@@ -22,6 +22,8 @@
   `ilspycmd` additionally needs `DOTNET_ROOT=$HOME/.dotnet`.
 - Reference assemblies live in `lib/` (gitignored), pulled from the rig's `valheim_Data/Managed`
   and the profile's `BepInEx/core`, not from a sibling mod. No Jotunn.
+- `lib/` also needs `UnityEngine.AnimationModule.dll` from the rig's `valheim_Data/Managed` (used
+  for the eitr/adrenaline Animator check).
 - `./build/logs.sh` fetches Angler's Eye lines from the rig's BepInEx log; the `anglerseye`
   console command mirrors its output there. `./build/shot.sh <name>` captures the game window into
   `docs/images/`.
