@@ -7,24 +7,28 @@ using UnityEngine.UI;
 namespace AnglersEye.UI
 {
     /// <summary>
-    /// The fishing panel: a small frame in the stamina bar's own style, just above the highest
-    /// visible bar (stamina, eitr, adrenaline). A title row with the fish and its stars, and a body
+    /// The fishing panel: a small dark, gold-edged frame just above the stamina bar (or above
+    /// eitr/adrenaline while they show). A title row with the fish and its stars, and a body
     /// row with bait advice or a big state word (BITE!, REEL, WAIT + struggle bar) and the forecast.
     /// </summary>
     internal static class FishingPanel
     {
-        private const float Gap = 8f;
-        private const float MinWidth = 140f;
-        private const float TextSize = 16f;
-        private const float BigSize = 24f;
-        private const float StarSize = 14f;
-        private const float BarHeight = 4f;
+        private const float Gap = 6f;
+        private const float MinWidth = 170f;
+        private const float TextSize = 20f;
+        private const float BigSize = 30f;
+        private const float StarSize = 18f;
+        private const float BarHeight = 5f;
+
+        /// <summary>Hud's eitr/adrenaline animators fade their bar with this bool (Hud.UpdateEitr/UpdateAdrenaline).</summary>
+        private static readonly int VisibleHash = Animator.StringToHash("Visible");
 
         private static readonly Vector3[] Corners = new Vector3[4];
         private static readonly List<Image> StarPool = new List<Image>();
 
         private static RectTransform _root, _titleRow, _bodyRow, _bodyCol, _bar, _barFill;
         private static TextMeshProUGUI _title, _body, _forecast;
+        private static Image _barFillImage;
         private static Hud _builtFor;
 
         public static void Show(PanelView v)
@@ -58,7 +62,7 @@ namespace AnglersEye.UI
             if (body && v.Bar.HasValue)
             {
                 _barFill.anchorMax = new Vector2(v.Bar.Value, 1f);
-                _barFill.GetComponent<Image>().color = Palette.For(v.BodyTone);
+                _barFillImage.color = Palette.For(v.BodyTone);
             }
             SetActive(_forecast.rectTransform, forecast);
             if (forecast)
@@ -96,12 +100,15 @@ namespace AnglersEye.UI
             _root = UiUtil.Rect("AnglersEyePanel", hud.m_staminaBar2Root.parent);
             _root.anchorMin = _root.anchorMax = new Vector2(0.5f, 0.5f);
             _root.pivot = new Vector2(0.5f, 0f);
-            UiUtil.StaminaFrame(_root.gameObject.AddComponent<Image>());
+            var frame = _root.gameObject.AddComponent<Image>();
+            frame.sprite = UiUtil.Frame;
+            frame.type = Image.Type.Sliced;
+            frame.raycastTarget = false;
             var le = _root.gameObject.AddComponent<LayoutElement>();
             le.ignoreLayout = true; // in case the bars' parent lays out its children
             le.minWidth = MinWidth;
             var layout = _root.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.padding = new RectOffset(12, 12, 6, 8);
+            layout.padding = new RectOffset(16, 16, 8, 10);
             layout.spacing = 0f;
             layout.childAlignment = TextAnchor.UpperCenter;
             layout.childControlWidth = layout.childControlHeight = true;
@@ -110,11 +117,11 @@ namespace AnglersEye.UI
             fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            _titleRow = Row("Title", _root, 3f);
+            _titleRow = Row("Title", _root, 4f);
             _title = UiUtil.OutlinedText(_titleRow, "Name", TextSize, TextAlignmentOptions.Center);
             _title.color = Palette.Normal;
 
-            _bodyRow = Row("Body", _root, 14f);
+            _bodyRow = Row("Body", _root, 18f);
             _bodyCol = UiUtil.Rect("State", _bodyRow);
             var col = _bodyCol.gameObject.AddComponent<VerticalLayoutGroup>();
             col.spacing = 1f;
@@ -135,9 +142,9 @@ namespace AnglersEye.UI
             _barFill.anchorMin = Vector2.zero;
             _barFill.anchorMax = Vector2.one;
             _barFill.offsetMin = _barFill.offsetMax = Vector2.zero;
-            var fill = _barFill.gameObject.AddComponent<Image>();
-            fill.sprite = UiUtil.White;
-            fill.raycastTarget = false;
+            _barFillImage = _barFill.gameObject.AddComponent<Image>();
+            _barFillImage.sprite = UiUtil.White;
+            _barFillImage.raycastTarget = false;
 
             _forecast = UiUtil.OutlinedText(_bodyRow, "Forecast", TextSize, TextAlignmentOptions.Center);
 
@@ -157,8 +164,9 @@ namespace AnglersEye.UI
         }
 
         /// <summary>
-        /// Centred on the stamina bar, Gap above the top of the highest active bar; recomputed every
-        /// frame as the bars resize, appear and move (build mode, ship HUD).
+        /// Centred on the stamina bar, Gap above its top, or above eitr/adrenaline while those are
+        /// shown; recomputed every frame as the bars resize, fade in and out, and move (build mode,
+        /// ship HUD). The stamina bar counts even while faded, so the panel doesn't jump.
         /// </summary>
         private static void Place(Hud hud)
         {
@@ -167,8 +175,8 @@ namespace AnglersEye.UI
             float x = (Corners[0].x + Corners[2].x) * 0.5f;
             float z = Corners[0].z;
             float top = Corners[1].y;
-            top = Top(hud.m_eitrBarRoot, top);
-            top = Top(hud.m_adrenalineBarRoot, top);
+            top = Top(hud.m_eitrBarRoot, hud.m_eitrAnimator, top);
+            top = Top(hud.m_adrenalineBarRoot, hud.m_adrenalineAnimator, top);
 
             Vector3 local = parent.InverseTransformPoint(new Vector3(x, top, z));
             Vector2 anchor = parent.rect.center; // anchors are (0.5, 0.5)
@@ -177,9 +185,14 @@ namespace AnglersEye.UI
             _root.localScale = Vector3.one * PluginConfig.Scale.Value;
         }
 
-        private static float Top(RectTransform bar, float top)
+        /// <summary>
+        /// Eitr and adrenaline roots are never deactivated, only faded by their animator's Visible
+        /// bool, so that bool (not activeInHierarchy) says whether the bar is on screen.
+        /// </summary>
+        private static float Top(RectTransform bar, Animator anim, float top)
         {
-            if (bar == null || !bar.gameObject.activeInHierarchy)
+            if (bar == null || !bar.gameObject.activeInHierarchy || anim == null || !anim.isActiveAndEnabled
+                || anim.runtimeAnimatorController == null || !anim.GetBool(VisibleHash))
                 return top;
             bar.GetWorldCorners(Corners);
             return Mathf.Max(top, Corners[1].y);

@@ -15,8 +15,8 @@ namespace AnglersEye.UI
     internal static class FloatLabel
     {
         private const float Above = 0.8f;
-        private const float TextSize = 16f;
-        private const float StarSize = 14f;
+        private const float TextSize = 20f;
+        private const float StarSize = 18f;
 
         private static readonly List<Image> StarPool = new List<Image>();
 
@@ -58,7 +58,7 @@ namespace AnglersEye.UI
 
             bool drawn = UiUtil.Stars(_root, StarPool, quality, 1, StarSize);
             UiUtil.SetText(_name, UiUtil.NameWithLevel(info.Name, quality, drawn));
-            _bait.transform.SetAsLastSibling();
+            UiUtil.SiblingIndex(_bait.transform, _root.childCount - 1);
             UiUtil.SetText(_bait, Labels.OnFloat(works, needed, UiUtil.Glyphs));
             _bait.color = works ? Palette.Normal : Palette.Bad;
 
@@ -86,7 +86,7 @@ namespace AnglersEye.UI
             _root = UiUtil.Rect("AnglersEyeFloatLabel", hud.m_crosshair.transform.parent);
             _root.pivot = new Vector2(0.5f, 0f);
             var layout = _root.gameObject.AddComponent<HorizontalLayoutGroup>();
-            layout.spacing = 2f;
+            layout.spacing = 3f;
             layout.childAlignment = TextAnchor.MiddleCenter;
             layout.childControlWidth = layout.childControlHeight = true;
             layout.childForceExpandWidth = layout.childForceExpandHeight = false;

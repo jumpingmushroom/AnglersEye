@@ -9,6 +9,7 @@ namespace AnglersEye.UI
     internal static class UiUtil
     {
         private static Sprite _white;
+        private static Sprite _frame;
         private static Glyphs _glyphs;
         private static TMP_FontAsset _glyphFont;
         private static EnemyHud _starFor;
@@ -111,43 +112,50 @@ namespace AnglersEye.UI
             return t;
         }
 
-        /// <summary>
-        /// Dress an Image as the stamina bar's frame: the first sliced (bordered) sprite in its
-        /// hierarchy, skipping the bars themselves. A dark box if there is none.
-        /// </summary>
-        public static void StaminaFrame(Image img)
-        {
-            img.raycastTarget = false;
-            Hud hud = Hud.instance;
-            Image frame = null;
-            if (hud != null && hud.m_staminaBar2Root != null)
-            {
-                foreach (Image i in hud.m_staminaBar2Root.GetComponentsInChildren<Image>(true))
-                {
-                    if (i.sprite == null || i.sprite.border == Vector4.zero || InBar(i.transform, hud.m_staminaBar2Fast) || InBar(i.transform, hud.m_staminaBar2Slow))
-                        continue;
-                    frame = i;
-                    break;
-                }
-            }
-            if (frame != null)
-            {
-                img.sprite = frame.sprite;
-                img.type = frame.type;
-                img.color = frame.color;
-                img.pixelsPerUnitMultiplier = frame.pixelsPerUnitMultiplier;
-            }
-            else
-            {
-                img.sprite = White;
-                img.type = Image.Type.Simple;
-                img.color = Palette.Frame;
-            }
-        }
+        private const int FrameSize = 32;
+        private const float FrameRadius = 6f;
+        private const float FrameLine = 1.25f;
+        private const int FrameBorder = 8;
 
-        private static bool InBar(Transform t, GuiBar bar)
+        /// <summary>
+        /// A 9-sliced rounded rectangle in Valheim's panel palette (dark fill, thin warm-gold line),
+        /// drawn in code so it doesn't depend on any game sprite. Use with Image.Type.Sliced.
+        /// </summary>
+        public static Sprite Frame
         {
-            return bar != null && t.IsChildOf(bar.transform);
+            get
+            {
+                if (_frame != null)
+                    return _frame;
+                var tex = new Texture2D(FrameSize, FrameSize, TextureFormat.RGBA32, false);
+                tex.wrapMode = TextureWrapMode.Clamp;
+                tex.filterMode = FilterMode.Bilinear;
+                var px = new Color32[FrameSize * FrameSize];
+                float half = FrameSize / 2f;
+                for (int y = 0; y < FrameSize; y++)
+                {
+                    for (int x = 0; x < FrameSize; x++)
+                    {
+                        // Signed distance to the rounded rectangle's edge (negative inside).
+                        float qx = Mathf.Abs(x + 0.5f - half) - (half - FrameRadius);
+                        float qy = Mathf.Abs(y + 0.5f - half) - (half - FrameRadius);
+                        float d = new Vector2(Mathf.Max(qx, 0f), Mathf.Max(qy, 0f)).magnitude
+                            + Mathf.Min(Mathf.Max(qx, qy), 0f) - FrameRadius;
+                        float coverage = Mathf.Clamp01(0.5f - d);
+                        float line = Mathf.Clamp01(d + FrameLine + 0.5f);
+                        Color c = Color.Lerp(Palette.Frame, Palette.FrameLine, line);
+                        c.a *= coverage;
+                        px[y * FrameSize + x] = c;
+                    }
+                }
+                tex.SetPixels32(px);
+                tex.Apply();
+                tex.hideFlags = HideFlags.HideAndDontSave;
+                _frame = Sprite.Create(tex, new Rect(0f, 0f, FrameSize, FrameSize), new Vector2(0.5f, 0.5f), 100f, 0,
+                    SpriteMeshType.FullRect, new Vector4(FrameBorder, FrameBorder, FrameBorder, FrameBorder));
+                _frame.hideFlags = HideFlags.HideAndDontSave;
+                return _frame;
+            }
         }
 
         /// <summary>The vanilla creature-level star (EnemyHud's level_2 icon), or null if it can't be found.</summary>
@@ -158,7 +166,8 @@ namespace AnglersEye.UI
                 EnemyHud eh = EnemyHud.instance;
                 if (eh == null)
                     return null;
-                if (_starFor != eh || _star == null)
+                // Look once per EnemyHud: a missing sprite stays missing (Lv N text), no per-frame Find.
+                if (_starFor != eh)
                 {
                     _starFor = eh;
                     _star = null;
@@ -210,9 +219,16 @@ namespace AnglersEye.UI
                     continue;
                 pool[i].sprite = star;
                 pool[i].color = _starColor;
-                pool[i].transform.SetSiblingIndex(first + i);
+                SiblingIndex(pool[i].transform, first + i);
             }
             return quality <= 1 || star != null;
+        }
+
+        /// <summary>Move a layout child only when it isn't already there (each move re-lays out the row).</summary>
+        public static void SiblingIndex(Transform t, int index)
+        {
+            if (t.GetSiblingIndex() != index)
+                t.SetSiblingIndex(index);
         }
 
         /// <summary>A fish's name, with "Lv N" appended when its stars couldn't be drawn.</summary>

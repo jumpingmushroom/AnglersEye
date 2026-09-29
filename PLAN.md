@@ -37,7 +37,7 @@ add content, or need a server install. None is a lightweight vanilla-preserving 
   the aim; else the most common species near you. Equip the best carried bait for it. If none is
   carried, a centre message names the bait needed and the cast goes ahead with vanilla's choice.
 - **Odds:** ✔/✖ by default; `ShowOdds` adds the per-nibble bait chance as a percentage.
-- **HUD:** one compact panel just above the stamina bar, in its frame style, visible only with a
+- **HUD:** one compact panel just above the stamina bar, in Valheim's panel style, visible only with a
   rod equipped (redesigned after in-game feedback; it replaced a text strip under the crosshair).
 - **Forecast:** expected case (reel only when calm, average struggle timing, current skill),
   three states ✓ / ~ / ✖.
@@ -195,9 +195,10 @@ With `s = owner.GetSkillFactor(Fishing)` (0..1) and `q` = fish quality:
   - `FishingFloat.TryToHook` prefix (only when the extended window is on) re-implements the method
     with the configured window and skips the original.
 - **`UI/`**
-  - `FishingPanel`: uGUI + TextMeshPro beside the stamina bar, 8 px above the highest active bar
-    (stamina/eitr/adrenaline), centred on the stamina bar. It borrows the stamina bar's sliced frame
-    sprite, the HUD font and the hover text's outlined material, and the vanilla creature-level star
+  - `FishingPanel`: uGUI + TextMeshPro, 6 px above the stamina bar (or above eitr/adrenaline while
+    their animators' `Visible` bool is set; the roots are never deactivated), centred on the stamina
+    bar. A procedural 9-sliced rounded frame (dark fill, thin warm-gold edge), the HUD font and the
+    hover text's outlined material, and the vanilla creature-level star
     (EnemyHud `level_2`) for the fish's level (`Lv N` text if that sprite is missing). Content comes
     from the pure `Model/PanelView`. Config scale and offset apply.
   - `FloatLabel`: a world-space-to-screen follower above the local float; outlined text, no box.
