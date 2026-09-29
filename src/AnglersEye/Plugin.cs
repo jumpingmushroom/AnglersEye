@@ -30,11 +30,17 @@ namespace AnglersEye
             Log = Logger;
             Instance = this;
             PluginConfig.Bind(base.Config);
+            Core.ConsoleCommands.Register();
 
             _harmony = new Harmony(PluginGuid);
             _harmony.PatchAll(typeof(AnglersEyePlugin).Assembly);
 
             Logger.LogInfo(PluginName + " " + PluginVersion + " loaded.");
+        }
+
+        private void Update()
+        {
+            Core.Runtime.Tick();
         }
 
         private void OnDestroy()
