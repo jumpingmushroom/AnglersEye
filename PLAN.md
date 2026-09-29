@@ -122,8 +122,11 @@ With `s = owner.GetSkillFactor(Fishing)` (0..1) and `q` = fish quality:
 3. A short vanilla UI sound available by prefab or clip name for the bite cue.
 4. The actual `m_baits` / `m_chance` / `m_staminaUse` / `m_escapeStaminaUse` / escape timing values
    for every fish in `ZNetScene`, including Deep North fish. Record them here.
-5. The attack method to prefix for smart bait, one that runs before `FindAmmo` for the rod
-   (candidates: `Humanoid.StartAttack`, `Attack.Start`).
+5. Which of `Attack.StartDraw(Humanoid character, ItemDrop.ItemData weapon)` and `Attack.Start(...)`
+   runs for a rod cast. Both call `HaveAmmo` then `EquipAmmoItem`, so smart bait prefixes both;
+   equipping is idempotent.
+6. Which glyphs (★ ✔ ✖ ✓ ● ▲ » «) the HUD's TMP font renders. The labels fall back to ASCII per
+   glyph at runtime either way.
 
 ---
 
@@ -236,13 +239,20 @@ declared locally. Every setting applies live.
 | Logging | `Verbose` | false | |
 
 ### 2.6 Compatibility
-- **Known fishing overhauls** (Hooked, Trolling Fishing; GUIDs looked up from their packages
-  during planning and listed in `Compat`): if present in `Chainloader.PluginInfos`, turn off smart
-  bait, smart reel, the extended hook window and the forecast. Fish ID stays; the bite and struggle
-  cues stay unless that mod replaces the fight (Hooked).
-- **Any other plugin** with Harmony patches on `FishingFloat.FixedUpdate` or
-  `FishingFloat.TryToHook` (found via `Harmony.GetPatchInfo`, excluding our own GUID, checked once
-  after all plugins load): turn off the assist that patches the same method.
+- **Known fishing overhauls**, matched by GUID in `Chainloader.PluginInfos` (GUIDs read from their
+  DLLs on 2026-09-29):
+  - `Azumatt.Hooked` (Hooked 1.1.1; patches `Fish.FindFloat`/`TestBate` and
+    `FishingFloat.FixedUpdate`/`SetCatch`/`Setup`, and replaces the fight): turn off smart bait, smart
+    reel, the extended hook window, the forecast, the bite cue and the struggle indicator. Fish ID stays.
+  - `sighsorry.TrollingFishing` (Trolling Fishing 1.1.3; patches `FixedUpdate`, `SetCatch`, `Setup`,
+    `Catch`, `ReturnBait`, `Fish.FindFloat`): turn off smart bait, smart reel, the extended hook
+    window and the forecast. Fish ID and cues stay.
+- **Any other plugin** with Harmony patches (found via `Harmony.GetPatchInfo`, excluding our own
+  GUID, checked once after all plugins have loaded):
+  - on `FishingFloat.FixedUpdate` (e.g. ComfyFishing `games.loxley.comfyfishing`): smart reel off;
+  - on `FishingFloat.TryToHook`: the extended hook window off;
+  - on `Fish.GetStaminaUse` (e.g. Reely Good Rod `com.orianaventure.mod.ReelyGoodRod`): the
+    forecast off, since its stamina maths would be wrong.
 - Every decision is logged once at Info and listed by the `anglerseye` console command.
 - Every patch body catches its own exceptions and logs once per call site (the Larder `Warned`
   pattern), so a failure never breaks vanilla fishing.
