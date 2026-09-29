@@ -10,13 +10,14 @@ namespace AnglersEye.Core
         private static int _carriedFrame = -1;
         private static Player _carriedFor;
 
-        /// <summary>A fishing rod is a weapon whose projectile is a FishingFloat. No names hardcoded.</summary>
+        /// <summary>
+        /// A fishing rod is a weapon whose ammo type is a bait type: some fish's bait table lists a
+        /// bait item with that ammo type (PLAN §1.7 probe: the real FishingRod's attack projectile has
+        /// no FishingFloat component, so that rule never matched). No names hardcoded.
+        /// </summary>
         public static bool IsRod(ItemDrop.ItemData w)
         {
-            if (w == null || string.IsNullOrEmpty(w.m_shared.m_ammoType))
-                return false;
-            Attack a = w.m_shared.m_attack;
-            return a != null && a.m_attackProjectile != null && a.m_attackProjectile.GetComponent<FishingFloat>() != null;
+            return w != null && FishCatalog.IsBaitAmmoType(w.m_shared.m_ammoType);
         }
 
         /// <summary>Carried stack totals by prefab name (the key fish bait tables use). Cached per frame per player; read-only.</summary>

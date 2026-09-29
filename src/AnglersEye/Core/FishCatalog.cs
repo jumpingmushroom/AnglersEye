@@ -22,6 +22,7 @@ namespace AnglersEye.Core
     internal static class FishCatalog
     {
         private static readonly Dictionary<string, FishInfo> ByPrefab = new Dictionary<string, FishInfo>();
+        private static readonly HashSet<string> BaitAmmoTypes = new HashSet<string>();
         private static ZNetScene _builtFor;
 
         public static RodParams Rod = new RodParams();
@@ -43,6 +44,7 @@ namespace AnglersEye.Core
             if (zs == null || zs == _builtFor)
                 return;
             ByPrefab.Clear();
+            BaitAmmoTypes.Clear();
             foreach (GameObject go in zs.m_prefabs)
             {
                 if (go == null)
@@ -70,6 +72,13 @@ namespace AnglersEye.Core
             return info;
         }
 
+        /// <summary>Whether some fish's bait table lists a bait of this ammo type (PLAN §1.7 / controller Ruling 9).</summary>
+        public static bool IsBaitAmmoType(string ammoType)
+        {
+            EnsureBuilt();
+            return !string.IsNullOrEmpty(ammoType) && BaitAmmoTypes.Contains(ammoType);
+        }
+
         /// <summary>The fish's level (1 = no stars), from its ItemDrop (PLAN §1.1).</summary>
         public static int Quality(Fish f)
         {
@@ -87,6 +96,9 @@ namespace AnglersEye.Core
                 string token = b.m_bait.m_itemData.m_shared.m_name;
                 string name = Localization.instance != null ? Localization.instance.Localize(token) : token;
                 baits.Add(new BaitOption(b.m_bait.name, name, b.m_chance));
+                string ammoType = b.m_bait.m_itemData.m_shared.m_ammoType;
+                if (!string.IsNullOrEmpty(ammoType))
+                    BaitAmmoTypes.Add(ammoType);
             }
             return new FishInfo
             {
