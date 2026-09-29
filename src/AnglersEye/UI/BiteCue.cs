@@ -14,8 +14,12 @@ namespace AnglersEye.UI
         // Vanilla clip names found by the runtime probe (PLAN §1.7.3), most preferred first.
         private static readonly string[] Candidates = { "UI_Craft_Finish_01", "Ui_Click_01" };
 
+        /// <summary>Resources.FindObjectsOfTypeAll is expensive; don't retry a failed lookup every nibble.</summary>
+        private const float RetryLookupAfter = 30f;
+
         private static float _until;
-        private static bool _lookedUp;
+        private static float _nextLookup;
+        private static bool _warnedMissing;
         private static AudioClip _clip;
         private static AudioSource _source;
 
@@ -32,9 +36,9 @@ namespace AnglersEye.UI
 
         private static void Play()
         {
-            if (!_lookedUp)
+            if (_clip == null && Time.time >= _nextLookup)
             {
-                _lookedUp = true;
+                _nextLookup = Time.time + RetryLookupAfter;
                 var byName = new Dictionary<string, AudioClip>();
                 foreach (AudioClip c in Resources.FindObjectsOfTypeAll<AudioClip>())
                     if (c != null && !byName.ContainsKey(c.name))
@@ -42,8 +46,11 @@ namespace AnglersEye.UI
                 foreach (string n in Candidates)
                     if (byName.TryGetValue(n, out _clip))
                         break;
-                if (_clip == null)
+                if (_clip == null && !_warnedMissing)
+                {
+                    _warnedMissing = true;
                     AnglersEyePlugin.Log.LogWarning("Angler's Eye: no bite sound found; the visual cue still works.");
+                }
             }
             if (_clip == null)
                 return;
