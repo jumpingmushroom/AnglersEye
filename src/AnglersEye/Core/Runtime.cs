@@ -21,11 +21,13 @@ namespace AnglersEye.Core
                 Compat.EnsureEvaluated();
                 FishingState.Refresh();
                 UpdateStrip(FishingState.Current);
+                FloatLabel.Update(FishingState.Current);
             }
             catch (Exception e)
             {
                 AnglersEyePlugin.WarnOnce("Runtime.Tick", e);
                 Strip.Hide();
+                FloatLabel.Hide();
             }
         }
 
