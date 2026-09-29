@@ -114,19 +114,51 @@ With `s = owner.GetSkillFactor(Fishing)` (0..1) and `q` = fish quality:
 - Therefore equipping the chosen bait (`Humanoid.EquipItem`) before the attack resolves ammo makes
   vanilla cast with it.
 
-### 1.7 To confirm with a runtime probe (throwaway, not committed)
-1. Bait items' `m_itemType` and that `EquipItem` on a bait stack sticks and is used by the next cast.
-   If bait can't be equipped, smart bait falls back to biasing `Inventory.GetAmmoItem` for the
-   rod's ammo type during the cast. That's more invasive, and it needs sign-off before building.
-2. That the player's hover raycast hits fish under the water surface (`Fish` is `Hoverable`).
-3. A short vanilla UI sound available by prefab or clip name for the bite cue.
-4. The actual `m_baits` / `m_chance` / `m_staminaUse` / `m_escapeStaminaUse` / escape timing values
-   for every fish in `ZNetScene`, including Deep North fish. Record them here.
-5. Which of `Attack.StartDraw(Humanoid character, ItemDrop.ItemData weapon)` and `Attack.Start(...)`
-   runs for a rod cast. Both call `HaveAmmo` then `EquipAmmoItem`, so smart bait prefixes both;
-   equipping is idempotent.
-6. Which glyphs (★ ✔ ✖ ✓ ● ▲ » «) the HUD's TMP font renders. The labels fall back to ASCII per
-   glyph at runtime either way.
+### 1.7 Runtime probe findings (2026-09-29)
+1. Bait prefabs are `ItemType.Ammo` with ammoType `$item_fishingbait`. `EquipItem` on a bait stack
+   sticks and the next cast used it (float bait was `FishingBaitForest` while vanilla would have
+   picked `FishingBait`). Smart bait's `EquipItem` approach works as designed.
+2. No `hover fish` line was logged: the player's hover raycast does not reach fish under the water
+   surface. Hover info therefore only helps for fish the crosshair can reach (surfaced or
+   near-surface); underwater fish are covered by the float label and the pre-cast strip instead.
+3. Bite clip: `UI_Craft_Finish_01` preferred, falling back to `Ui_Click_01`.
+4. `m_baits` / `m_chance` / `m_staminaUse` / `m_escapeStaminaUse` / escape timing values for every
+   fish in `ZNetScene` (fish table below), and the float's reeling numbers (float values below).
+   Every bait's chance is 1.0 in practice; only `m_baseHookChance` = 0.1 (same for every fish)
+   gates whether a fish approaches the float at all.
+5. A cast calls `Attack.StartDraw` when the draw begins, then `Attack.Start` on release, then
+   `FishingFloat.Setup`. Smart bait's prefixes on both run before the float is set up.
+6. Of the label glyphs (★ ✔ ✖ ✓ ● ▲ » «), the HUD font (Valheim-AveriaSerifLibre) renders only
+   `✖` and `·`; everything else falls back to ASCII via `Glyphs.Resolve`.
+
+**Fish table** (prefab, name token, bait table, stamina, escape and wait timing):
+
+| Prefab | Name token | Bait (chance) | staminaUse / escapeStaminaUse | Escape min–max +/lvl | Wait min–max |
+|---|---|---|---|---|---|
+| Fish1 | `$animal_fish1` | FishingBait (1.0) | 3 / 10 | 0.5–3 +1.5/lvl | 1.5–5 |
+| Fish2 | `$animal_fish2` | FishingBait (1.0) | 5 / 15 | 0.5–3 +1.5/lvl | 1.5–5 |
+| Fish3 | `$animal_fish3` | FishingBaitOcean (1.0) | 7 / 20 | 0.5–3 +1.5/lvl | 1.5–5 |
+| Fish4_cave | `$animal_fish4` | FishingBaitCave (1.0) | 11 / 28 | 0.5–3 +1.5/lvl | 1.5–5 |
+| Fish5 | `$animal_fish5` | FishingBaitForest (1.0) | 9 / 25 | 0.5–3 +1/lvl | 1.5–5 |
+| Fish6 | `$animal_fish6` | FishingBaitSwamp (1.0) | 10 / 30 | 0.5–3 +1.5/lvl | 1.5–5 |
+| Fish7 | `$animal_fish7` | FishingBaitPlains (1.0) | 12 / 32 | 0.5–3 +1.5/lvl | 1.5–5 |
+| Fish8 | `$animal_fish8` | FishingBaitOcean (1.0) | 12 / 34 | 1–4 +1.5/lvl | 1.25–4 |
+| Fish9 | `$animal_fish9` | FishingBaitMistlands (1.0) | 14 / 38 | 1–4 +1.5/lvl | 1.25–4 |
+| Fish10 | `$animal_fish10` | FishingBaitDeepNorth (1.0) | 20 / 60 | 1–4 +1.5/lvl | 1.25–4 |
+| Fish11 | `$animal_fish11` | FishingBaitAshlands (1.0) | 18 / 50 | 1–4 +1.5/lvl | 1.25–4 |
+| Fish12 | `$animal_fish12` | FishingBaitMistlands (1.0) | 14 / 40 | 1–4 +1.5/lvl | 1.25–4 |
+
+**Float values** (`FishingRodFloat`):
+
+| Parameter | Value |
+|---|---|
+| `m_pullStaminaUse` | 0 |
+| `m_pullStaminaUseMaxSkillMultiplier` | 0.2 |
+| `m_pullLineSpeed` → max skill | 2 → 6 m/s |
+| `m_hookedStaminaPerSec` → max skill | 1 → 0.2 |
+| `m_range` | **50 m** |
+| `m_maxDistance` | 30 m |
+| `m_breakDistance` | 10 m |
 
 ---
 
@@ -174,7 +206,9 @@ With `s = owner.GetSkillFactor(Fishing)` (0..1) and `q` = fish quality:
      fish accepts several baits, show the best carried one, or the best overall if none is carried.
    - Float label: shown while the float is in the water with no catch. Subject: a fish whose
      `m_waypointFF` is our float (available when we own the fish), else the nearest fish within the
-     float's `m_range`. Shows the name, stars and bait ✔/✖. Hidden when nothing is in range.
+     float's `m_range`. Shows the name, stars and bait ✔/✖. Hidden when nothing is in range. Since
+     the probe found `m_range` is 50 m (§1.7), the nearest-fish fallback is capped at 10 m so the
+     label stays about the fish actually near your float, not one across the pond.
 2. **Smart bait.** On attack start with a fishing rod (a weapon whose `m_ammoType` matches a bait
    type), `TargetPicker` picks the species and `BaitAdvisor` picks the bait. If the chosen bait
    differs from what vanilla would use, equip it. If the species has no carried bait, show a centre
