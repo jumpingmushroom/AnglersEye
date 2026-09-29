@@ -21,6 +21,9 @@ namespace AnglersEye.Core
     {
         public static readonly FishingSnapshot Current = new FishingSnapshot();
 
+        /// <summary>The float's m_range is 50 m (PLAN §1.7); the label is about the fish at your float, not one across the pond.</summary>
+        private const float NearbyRadius = 10f;
+
         /// <summary>The float belongs to the local player (ZDO rodOwner, as FishingFloat.GetOwner reads it).</summary>
         public static bool IsLocal(FishingFloat ff)
         {
@@ -59,7 +62,7 @@ namespace AnglersEye.Core
             if (ff.m_nibbler != null && Time.time - ff.m_nibbleTime < 2f)
                 return ff.m_nibbler;
             Fish nearest = null;
-            float best = ff.m_range;
+            float best = Mathf.Min(ff.m_range, NearbyRadius);
             Vector3 at = ff.transform.position;
             foreach (IMonoUpdater u in Fish.Instances)
             {
