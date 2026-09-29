@@ -112,6 +112,7 @@ namespace AnglersEye.UI
 
             _titleRow = Row("Title", _root, 3f);
             _title = UiUtil.OutlinedText(_titleRow, "Name", TextSize, TextAlignmentOptions.Center);
+            _title.color = Palette.Normal;
 
             _bodyRow = Row("Body", _root, 14f);
             _bodyCol = UiUtil.Rect("State", _bodyRow);

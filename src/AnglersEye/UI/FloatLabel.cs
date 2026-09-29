@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AnglersEye.Core;
 using AnglersEye.Core.Model;
 using TMPro;
@@ -8,14 +9,19 @@ namespace AnglersEye.UI
 {
     /// <summary>
     /// A small label above your float naming the fish nibbling or heading for it, and whether the
-    /// bait on the float works on it (PLAN §2.2 item 1). Hidden once a fish is hooked.
+    /// bait on the float works on it (PLAN §2.2 item 1). Outlined text, no box, like the game's own
+    /// world labels. Hidden once a fish is hooked.
     /// </summary>
     internal static class FloatLabel
     {
         private const float Above = 0.8f;
+        private const float TextSize = 16f;
+        private const float StarSize = 14f;
+
+        private static readonly List<Image> StarPool = new List<Image>();
 
         private static RectTransform _root;
-        private static TextMeshProUGUI _text;
+        private static TextMeshProUGUI _name, _bait;
         private static Hud _builtFor;
 
         public static void Update(FishingSnapshot s)
@@ -41,6 +47,7 @@ namespace AnglersEye.UI
                 return;
 
             FishInfo info = FishCatalog.For(s.Subject);
+            int quality = FishCatalog.Quality(s.Subject);
             string onFloat = s.Float.GetBait();
             bool works = false;
             foreach (BaitOption b in info.Baits)
@@ -48,13 +55,15 @@ namespace AnglersEye.UI
                     works = true;
             BaitAdvice best = BaitAdvisor.Advise(info.Baits, Tackle.Carried(s.Player));
             string needed = best != null ? best.Best.BaitName : "?";
-            string text = Labels.OnFloat(info.Name, FishCatalog.Quality(s.Subject), works, needed, UiUtil.Glyphs);
+
+            bool drawn = UiUtil.Stars(_root, StarPool, quality, 1, StarSize);
+            UiUtil.SetText(_name, UiUtil.NameWithLevel(info.Name, quality, drawn));
+            _bait.transform.SetAsLastSibling();
+            UiUtil.SetText(_bait, Labels.OnFloat(works, needed, UiUtil.Glyphs));
+            _bait.color = works ? Palette.Normal : Palette.Bad;
 
             if (!_root.gameObject.activeSelf)
                 _root.gameObject.SetActive(true);
-            if (_text.text != text)
-                _text.text = text;
-            _text.color = works ? Palette.Normal : Palette.Bad;
             _root.position = screen;
             _root.localScale = Vector3.one * PluginConfig.Scale.Value;
         }
@@ -70,22 +79,23 @@ namespace AnglersEye.UI
             Hud hud = Hud.instance;
             if (hud == null || hud.m_crosshair == null)
                 return false;
+            // No ?? on Unity objects: a destroyed HUD compares equal to null only through Unity's ==.
             if (_root != null && _builtFor == hud)
                 return true;
+            StarPool.Clear();
             _root = UiUtil.Rect("AnglersEyeFloatLabel", hud.m_crosshair.transform.parent);
             _root.pivot = new Vector2(0.5f, 0f);
-            var bg = _root.gameObject.AddComponent<Image>();
-            bg.sprite = UiUtil.White;
-            bg.color = Palette.Frame;
-            bg.raycastTarget = false;
             var layout = _root.gameObject.AddComponent<HorizontalLayoutGroup>();
-            layout.padding = new RectOffset(8, 8, 2, 2);
+            layout.spacing = 2f;
+            layout.childAlignment = TextAnchor.MiddleCenter;
             layout.childControlWidth = layout.childControlHeight = true;
             layout.childForceExpandWidth = layout.childForceExpandHeight = false;
             var fit = _root.gameObject.AddComponent<ContentSizeFitter>();
             fit.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
             fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            _text = UiUtil.Text(_root, "Text", 16f, TextAlignmentOptions.Center);
+            _name = UiUtil.OutlinedText(_root, "Name", TextSize, TextAlignmentOptions.Center);
+            _name.color = Palette.Normal;
+            _bait = UiUtil.OutlinedText(_root, "Bait", TextSize, TextAlignmentOptions.Center);
             _builtFor = hud;
             return true;
         }

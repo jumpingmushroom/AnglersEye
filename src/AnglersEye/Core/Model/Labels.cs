@@ -16,12 +16,6 @@ namespace AnglersEye.Core.Model
             return sb.ToString();
         }
 
-        public static string WithStars(string name, int quality, Glyphs g)
-        {
-            string s = Stars(quality, g);
-            return s.Length == 0 ? name : name + " " + s;
-        }
-
         /// <summary>Text level for when the game's star sprite can't be borrowed: "Lv 3"; empty for quality 1.</summary>
         public static string Level(int quality)
         {
@@ -49,11 +43,10 @@ namespace AnglersEye.Core.Model
             return s;
         }
 
-        /// <summary>Float label: whether the bait on the float works on this fish.</summary>
-        public static string OnFloat(string name, int quality, bool baitWorks, string neededBait, Glyphs g)
+        /// <summary>Float label, after the fish's name and level: whether the bait on the float works on it.</summary>
+        public static string OnFloat(bool baitWorks, string neededBait, Glyphs g)
         {
-            string head = WithStars(name, quality, g) + " " + g.Sep + " ";
-            return baitWorks ? head + g.Yes : head + "needs " + neededBait + " " + g.No;
+            return " " + g.Sep + (baitWorks ? " bait ok" : " needs " + neededBait);
         }
 
         public static string NeedsBait(string fish, string bait)

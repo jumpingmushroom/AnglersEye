@@ -15,8 +15,6 @@ namespace AnglersEye.Tests
         {
             Assert.Equal("", Labels.Stars(1, G));
             Assert.Equal("★★", Labels.Stars(3, G));
-            Assert.Equal("Pike ★", Labels.WithStars("Pike", 2, G));
-            Assert.Equal("Pike", Labels.WithStars("Pike", 1, G));
         }
 
         [Fact]
@@ -38,8 +36,8 @@ namespace AnglersEye.Tests
         [Fact]
         public void OnFloat_WorksOrNeeds()
         {
-            Assert.Equal("Pike ★ · ✔", Labels.OnFloat("Pike", 2, true, "Cold bait", G));
-            Assert.Equal("Pike · needs Cold bait ✖", Labels.OnFloat("Pike", 1, false, "Cold bait", G));
+            Assert.Equal(" · bait ok", Labels.OnFloat(true, "Cold bait", G));
+            Assert.Equal(" · needs Cold bait", Labels.OnFloat(false, "Cold bait", G));
         }
 
         [Fact]
