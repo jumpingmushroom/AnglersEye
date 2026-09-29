@@ -6,7 +6,7 @@ using UnityEngine;
 namespace AnglersEye.UI
 {
     /// <summary>
-    /// A hookable nibble: the strip flashes BITE! for as long as it can be hooked, and a short
+    /// A hookable nibble: the fishing panel shows BITE! for as long as it can be hooked, and a short
     /// vanilla UI sound plays in 2D through the game's GUI mixer (PLAN §2.2 item 3).
     /// </summary>
     internal static class BiteCue

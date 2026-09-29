@@ -37,7 +37,8 @@ add content, or need a server install. None is a lightweight vanilla-preserving 
   the aim; else the most common species near you. Equip the best carried bait for it. If none is
   carried, a centre message names the bait needed and the cast goes ahead with vanilla's choice.
 - **Odds:** ✔/✖ by default; `ShowOdds` adds the per-nibble bait chance as a percentage.
-- **HUD:** one compact strip under the crosshair, visible only with a rod equipped.
+- **HUD:** one compact panel just above the stamina bar, in its frame style, visible only with a
+  rod equipped (redesigned after in-game feedback; it replaced a text strip under the crosshair).
 - **Forecast:** expected case (reel only when calm, average struggle timing, current skill),
   three states ✓ / ~ / ✖.
 - **Bite sound:** a vanilla UI sound played 2D, on by default, with a volume setting.
@@ -194,10 +195,13 @@ With `s = owner.GetSkillFactor(Fishing)` (0..1) and `q` = fish quality:
   - `FishingFloat.TryToHook` prefix (only when the extended window is on) re-implements the method
     with the configured window and skips the original.
 - **`UI/`**
-  - `Strip`: uGUI + TextMeshPro under `Hud`, below the crosshair. It uses the game's TMP font asset
-    and a subtle dark backing; config scale and offset apply.
-  - `FloatLabel`: a world-space-to-screen follower above the local float.
-  - `BiteCue`: a strip flash plus the 2D sound.
+  - `FishingPanel`: uGUI + TextMeshPro beside the stamina bar, 8 px above the highest active bar
+    (stamina/eitr/adrenaline), centred on the stamina bar. It borrows the stamina bar's sliced frame
+    sprite, the HUD font and the hover text's outlined material, and the vanilla creature-level star
+    (EnemyHud `level_2`) for the fish's level (`Lv N` text if that sprite is missing). Content comes
+    from the pure `Model/PanelView`. Config scale and offset apply.
+  - `FloatLabel`: a world-space-to-screen follower above the local float; outlined text, no box.
+  - `BiteCue`: the panel's BITE! plus the 2D sound.
 
 ### 2.2 Features
 1. **Fish ID.**
@@ -214,24 +218,26 @@ With `s = owner.GetSkillFactor(Fishing)` (0..1) and `q` = fish quality:
    differs from what vanilla would use, equip it. If the species has no carried bait, show a centre
    message `Angler's Eye: <fish> needs <bait>` and don't touch the cast. With no target, do nothing.
 3. **Bite and struggle cues.**
-   - Nibble with correct bait: the strip flashes `» BITE! «` for the hook window, and the sound plays.
-   - Hooked: the strip shows `● REEL` (calm, green) or `▲ WAIT` (struggling, amber), plus distance
-     and the forecast.
+   - Nibble with correct bait: the panel shows a big yellow `BITE!` for the hook window, and the sound plays.
+   - Hooked: the panel shows a big `REEL` (calm, green) or `WAIT` (struggling, amber) with a bar
+     draining over the struggle, plus the forecast. No distance: vanilla shows the line length.
    - Optional extended hook window (off; 1.0 s default; 0.5–1.5 s).
 4. **Smart reel** (off by default). While Block is held, reel only when the fish is calm. Stamina
    maths is untouched. While suppressed, the passive hooked drain still applies as in vanilla. It
    doesn't prevent line breaks; vanilla's pause has the same risk.
-5. **Catch forecast** (§2.4). Shown on the strip while hooked, and before a hook for the targeted
+5. **Catch forecast** (§2.4). Shown on the panel while hooked, and before a hook for the targeted
    fish at the current float distance, assuming quality 1 when the fish's level is unknown.
 
-### 2.3 Strip states (only with a rod equipped)
-| State | Example |
+### 2.3 Panel states (only with a rod equipped)
+Title row: fish name + star icons (quality − 1). Body row:
+| State | Body |
 |---|---|
-| Rod out, no float | `Pike ★ · Cold bait ✔ (x12)` or `Pike ★ · needs Cold bait ✖` |
-| Float in water | `Pike ★ · 18m · ✓` |
-| Nibble | `» BITE! «` (flash for the hook window) |
-| Hooked, calm | `● REEL  12m  ✓ can land` |
-| Hooked, struggling | `▲ WAIT  12m  ~ tight` |
+| Rod out, no float | `Cold bait (12)`, or `needs Cold bait` in red (` 60%` after the bait with ShowOdds) |
+| Float in water | `Waiting…` + forecast word; title `Waiting…` alone if no fish is near |
+| Nibble | big yellow `BITE!` (for the hook window) |
+| Hooked, calm | big green `REEL` + forecast word |
+| Hooked, struggling | big amber `WAIT` + draining struggle bar + forecast word |
+Forecast words: `can land` (green), `tight` (amber), `unlikely` (red).
 Nothing is shown when no target can be determined and no float is out.
 
 ### 2.4 Forecast model

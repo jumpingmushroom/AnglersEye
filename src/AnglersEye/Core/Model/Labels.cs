@@ -3,7 +3,7 @@ using System.Text;
 
 namespace AnglersEye.Core.Model
 {
-    /// <summary>Every string Angler's Eye shows. Names passed in are already localised.</summary>
+    /// <summary>Strings Angler's Eye shows outside the fishing panel (PanelView). Names passed in are already localised.</summary>
     public static class Labels
     {
         public static string Stars(int quality, Glyphs g)
@@ -20,6 +20,12 @@ namespace AnglersEye.Core.Model
         {
             string s = Stars(quality, g);
             return s.Length == 0 ? name : name + " " + s;
+        }
+
+        /// <summary>Text level for when the game's star sprite can't be borrowed: "Lv 3"; empty for quality 1.</summary>
+        public static string Level(int quality)
+        {
+            return quality > 1 ? "Lv " + quality : "";
         }
 
         public static string Odds(float chance)
@@ -43,57 +49,11 @@ namespace AnglersEye.Core.Model
             return s;
         }
 
-        /// <summary>Strip line before a cast: the fish smart bait would target.</summary>
-        public static string Target(string name, int quality, BaitAdvice a, Glyphs g, bool showOdds)
-        {
-            string head = WithStars(name, quality, g);
-            if (a == null)
-                return head;
-            return head + " " + g.Sep + " " + (a.Carried ? "" : "needs ") + Bait(a, g, showOdds);
-        }
-
         /// <summary>Float label: whether the bait on the float works on this fish.</summary>
         public static string OnFloat(string name, int quality, bool baitWorks, string neededBait, Glyphs g)
         {
             string head = WithStars(name, quality, g) + " " + g.Sep + " ";
             return baitWorks ? head + g.Yes : head + "needs " + neededBait + " " + g.No;
-        }
-
-        public static string Verdict(Verdict v, Glyphs g, bool shortForm)
-        {
-            switch (v)
-            {
-                case Model.Verdict.Likely:
-                    return shortForm ? g.Land : g.Land + " can land";
-                case Model.Verdict.Tight:
-                    return shortForm ? "~" : "~ tight";
-                default:
-                    return shortForm ? g.No : g.No + " unlikely";
-            }
-        }
-
-        /// <summary>Strip line while the float is out: the fish near it, line length, forecast.</summary>
-        public static string Waiting(string name, int quality, int metres, Verdict? v, Glyphs g)
-        {
-            string s = WithStars(name, quality, g) + " " + g.Sep + " " + Distance(metres);
-            return v.HasValue ? s + " " + g.Sep + " " + Verdict(v.Value, g, true) : s;
-        }
-
-        public static string Distance(int metres)
-        {
-            return metres + "m";
-        }
-
-        /// <summary>Strip line while hooked.</summary>
-        public static string Hooked(bool escaping, int metres, Verdict? v, Glyphs g)
-        {
-            string s = (escaping ? g.Struggle + " WAIT" : g.Calm + " REEL") + "  " + Distance(metres);
-            return v.HasValue ? s + "  " + Verdict(v.Value, g, false) : s;
-        }
-
-        public static string Bite(Glyphs g)
-        {
-            return g.BiteLeft + " BITE! " + g.BiteRight;
         }
 
         public static string NeedsBait(string fish, string bait)

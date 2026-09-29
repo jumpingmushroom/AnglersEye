@@ -36,14 +36,6 @@ namespace AnglersEye.Tests
         }
 
         [Fact]
-        public void Target_BeforeCast()
-        {
-            Assert.Equal("Pike ★ · Cold bait ✔ (x12)", Labels.Target("Pike", 2, Carried, G, false));
-            Assert.Equal("Pike ★ · needs Cold bait ✖", Labels.Target("Pike", 2, Missing, G, false));
-            Assert.Equal("Pike", Labels.Target("Pike", 1, null, G, false));
-        }
-
-        [Fact]
         public void OnFloat_WorksOrNeeds()
         {
             Assert.Equal("Pike ★ · ✔", Labels.OnFloat("Pike", 2, true, "Cold bait", G));
@@ -51,35 +43,27 @@ namespace AnglersEye.Tests
         }
 
         [Fact]
-        public void Verdicts_ShortAndLong()
+        public void Level_TextFallback()
         {
-            Assert.Equal("✓", Labels.Verdict(Verdict.Likely, G, true));
-            Assert.Equal("✓ can land", Labels.Verdict(Verdict.Likely, G, false));
-            Assert.Equal("~ tight", Labels.Verdict(Verdict.Tight, G, false));
-            Assert.Equal("✖ unlikely", Labels.Verdict(Verdict.Unlikely, G, false));
+            Assert.Equal("", Labels.Level(1));
+            Assert.Equal("", Labels.Level(0));
+            Assert.Equal("Lv 3", Labels.Level(3));
         }
 
         [Fact]
-        public void StripStates()
+        public void NeedsBait_Message()
         {
-            Assert.Equal("Pike ★ · 18m · ✓", Labels.Waiting("Pike", 2, 18, Verdict.Likely, G));
-            Assert.Equal("Pike · 18m", Labels.Waiting("Pike", 1, 18, null, G));
-            Assert.Equal("18m", Labels.Distance(18));
-            Assert.Equal("● REEL  12m  ✓ can land", Labels.Hooked(false, 12, Verdict.Likely, G));
-            Assert.Equal("▲ WAIT  12m  ~ tight", Labels.Hooked(true, 12, Verdict.Tight, G));
-            Assert.Equal("▲ WAIT  12m", Labels.Hooked(true, 12, null, G));
-            Assert.Equal("» BITE! «", Labels.Bite(G));
             Assert.Equal("Angler's Eye: Pike needs Cold bait", Labels.NeedsBait("Pike", "Cold bait"));
         }
 
         [Fact]
         public void Resolve_FallsBackPerGlyph()
         {
-            Glyphs g = Glyphs.Resolve(c => c != '★' && c != '»');
+            Glyphs g = Glyphs.Resolve(c => c != '★' && c != '✔');
             Assert.Equal("*", g.Star);
-            Assert.Equal(">>", g.BiteLeft);
-            Assert.Equal("«", g.BiteRight);
-            Assert.Equal("✔", g.Yes);
+            Assert.Equal("+", g.Yes);
+            Assert.Equal("✖", g.No);
+            Assert.Equal("·", g.Sep);
         }
     }
 }

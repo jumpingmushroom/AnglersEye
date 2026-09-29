@@ -8,16 +8,16 @@ namespace AnglersEye.Core.Model
     /// </summary>
     public sealed class Glyphs
     {
-        public string Star, Yes, No, Land, Calm, Struggle, BiteLeft, BiteRight, Sep;
+        public string Star, Yes, No, Sep;
 
         public static Glyphs Unicode()
         {
-            return new Glyphs { Star = "★", Yes = "✔", No = "✖", Land = "✓", Calm = "●", Struggle = "▲", BiteLeft = "»", BiteRight = "«", Sep = "·" };
+            return new Glyphs { Star = "★", Yes = "✔", No = "✖", Sep = "·" };
         }
 
         public static Glyphs Ascii()
         {
-            return new Glyphs { Star = "*", Yes = "+", No = "x", Land = "+", Calm = ">", Struggle = "!", BiteLeft = ">>", BiteRight = "<<", Sep = "-" };
+            return new Glyphs { Star = "*", Yes = "+", No = "x", Sep = "-" };
         }
 
         public static Glyphs Resolve(Func<char, bool> hasChar)
@@ -28,11 +28,6 @@ namespace AnglersEye.Core.Model
                 Star = Pick(u.Star, a.Star, hasChar),
                 Yes = Pick(u.Yes, a.Yes, hasChar),
                 No = Pick(u.No, a.No, hasChar),
-                Land = Pick(u.Land, a.Land, hasChar),
-                Calm = Pick(u.Calm, a.Calm, hasChar),
-                Struggle = Pick(u.Struggle, a.Struggle, hasChar),
-                BiteLeft = Pick(u.BiteLeft, a.BiteLeft, hasChar),
-                BiteRight = Pick(u.BiteRight, a.BiteRight, hasChar),
                 Sep = Pick(u.Sep, a.Sep, hasChar)
             };
         }

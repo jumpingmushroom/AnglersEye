@@ -54,7 +54,7 @@ namespace AnglersEye.UI
                 _root.gameObject.SetActive(true);
             if (_text.text != text)
                 _text.text = text;
-            _text.color = works ? Palette.Idle : Palette.Missing;
+            _text.color = works ? Palette.Normal : Palette.Bad;
             _root.position = screen;
             _root.localScale = Vector3.one * PluginConfig.Scale.Value;
         }
@@ -76,7 +76,7 @@ namespace AnglersEye.UI
             _root.pivot = new Vector2(0.5f, 0f);
             var bg = _root.gameObject.AddComponent<Image>();
             bg.sprite = UiUtil.White;
-            bg.color = Palette.Backing;
+            bg.color = Palette.Frame;
             bg.raycastTarget = false;
             var layout = _root.gameObject.AddComponent<HorizontalLayoutGroup>();
             layout.padding = new RectOffset(8, 8, 2, 2);

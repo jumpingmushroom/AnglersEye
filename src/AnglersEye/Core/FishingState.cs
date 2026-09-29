@@ -11,6 +11,8 @@ namespace AnglersEye.Core
         public Fish Catch;
         public bool Escaping;
         public float RemainingEscape;
+        /// <summary>Length of the current (or last) struggle, captured as it starts; 0 when not hooked.</summary>
+        public float EscapeTotal;
         public float LineLength;
         /// <summary>The fish nibbling or heading for the float, else the nearest in its range.</summary>
         public Fish Subject;
@@ -23,6 +25,9 @@ namespace AnglersEye.Core
 
         /// <summary>The float's m_range is 50 m (PLAN §1.7); the label is about the fish at your float, not one across the pond.</summary>
         private const float NearbyRadius = 10f;
+
+        private static bool _wasEscaping;
+        private static float _lastRemaining;
 
         /// <summary>The float belongs to the local player (ZDO rodOwner, as FishingFloat.GetOwner reads it).</summary>
         public static bool IsLocal(FishingFloat ff)
@@ -53,8 +58,20 @@ namespace AnglersEye.Core
             // The hooker owns the fish (Fish.OnHooked claims ownership), so its escape timer is live here.
             s.Escaping = s.Catch != null && s.Catch.IsEscaping();
             s.RemainingEscape = s.Catch != null ? Mathf.Max(0f, s.Catch.m_escapeTime) : 0f;
+            TrackStruggle(s);
             s.LineLength = s.Float != null ? s.Float.m_lineLength : 0f;
             s.Subject = s.Float != null && s.Catch == null ? SubjectFor(s.Float) : null;
+        }
+
+        /// <summary>A struggle starts when escaping turns on or its timer jumps back up (a new roll).</summary>
+        private static void TrackStruggle(FishingSnapshot s)
+        {
+            if (s.Catch == null)
+                s.EscapeTotal = 0f;
+            else if (s.Escaping && (!_wasEscaping || s.RemainingEscape > _lastRemaining))
+                s.EscapeTotal = s.RemainingEscape;
+            _wasEscaping = s.Escaping;
+            _lastRemaining = s.RemainingEscape;
         }
 
         private static Fish SubjectFor(FishingFloat ff)

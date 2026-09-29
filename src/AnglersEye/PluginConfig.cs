@@ -72,16 +72,16 @@ namespace AnglersEye
                     new AcceptableValueRange<float>(3f, 30f), Attr(79)));
 
             BiteCue = cfg.Bind("4 - Cues", "BiteCue", true,
-                new ConfigDescription("Flash 'BITE!' under the crosshair while a nibble can be hooked.", null, Attr(70)));
+                new ConfigDescription("Show 'BITE!' in the fishing panel while a nibble can be hooked.", null, Attr(70)));
             BiteSound = cfg.Bind("4 - Cues", "BiteSound", true,
                 new ConfigDescription("Play a short sound on a nibble you can hook.", null, Attr(69)));
             BiteVolume = cfg.Bind("4 - Cues", "BiteVolume", 0.7f,
                 new ConfigDescription("Volume of the bite sound.", new AcceptableValueRange<float>(0f, 1f), Attr(68)));
             StruggleIndicator = cfg.Bind("4 - Cues", "StruggleIndicator", true,
-                new ConfigDescription("While a fish is hooked, show REEL when it's calm and WAIT when it's struggling.", null, Attr(67)));
+                new ConfigDescription("While a fish is hooked, show REEL when it's calm and WAIT (with a bar counting down the struggle) when it's struggling.", null, Attr(67)));
 
             Forecast = cfg.Bind("5 - Forecast", "Forecast", true,
-                new ConfigDescription("Estimate whether you have the stamina to land the fish: ✓ can land, ~ tight, ✖ unlikely.", null, Attr(60)));
+                new ConfigDescription("Estimate whether you have the stamina to land the fish: can land, tight or unlikely.", null, Attr(60)));
 
             SmartReel = cfg.Bind("6 - Assists", "SmartReel", false,
                 new ConfigDescription("While you hold Block, only reel while the fish is calm. Stamina costs stay vanilla.", null, Attr(50)));
@@ -91,11 +91,11 @@ namespace AnglersEye
                 new ConfigDescription("Hook window when ExtendedHookWindow is on.", new AcceptableValueRange<float>(0.5f, 1.5f), Attr(48)));
 
             Scale = cfg.Bind("7 - UI", "Scale", 1f,
-                new ConfigDescription("Size of the text under the crosshair and the float label.", new AcceptableValueRange<float>(0.5f, 2f), Attr(40)));
+                new ConfigDescription("Size of the fishing panel and the float label.", new AcceptableValueRange<float>(0.5f, 2f), Attr(40)));
             OffsetX = cfg.Bind("7 - UI", "OffsetX", 0f,
-                new ConfigDescription("Horizontal nudge of the text under the crosshair, in pixels (positive is right).", new AcceptableValueRange<float>(-1500f, 1500f), Attr(39)));
+                new ConfigDescription("Horizontal nudge of the fishing panel from its spot above the stamina bar, in pixels (positive is right).", new AcceptableValueRange<float>(-1500f, 1500f), Attr(39)));
             OffsetY = cfg.Bind("7 - UI", "OffsetY", 0f,
-                new ConfigDescription("Vertical nudge of the text under the crosshair, in pixels (positive is up).", new AcceptableValueRange<float>(-1000f, 1000f), Attr(38)));
+                new ConfigDescription("Vertical nudge of the fishing panel from its spot above the stamina bar, in pixels (positive is up).", new AcceptableValueRange<float>(-1000f, 1000f), Attr(38)));
 
             Verbose = cfg.Bind("8 - Logging", "Verbose", false,
                 new ConfigDescription("Log smart bait and compat decisions to the BepInEx log.", null, Attr(5, advanced: true)));

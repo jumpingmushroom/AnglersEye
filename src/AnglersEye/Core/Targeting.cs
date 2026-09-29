@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace AnglersEye.Core
 {
-    /// <summary>The fish the player is aiming at, for smart bait and the pre-cast strip line.</summary>
+    /// <summary>The fish the player is aiming at, for smart bait and the pre-cast panel.</summary>
     internal static class Targeting
     {
         private static readonly List<FishSighting> Buffer = new List<FishSighting>();

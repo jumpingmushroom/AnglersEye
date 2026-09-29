@@ -11,7 +11,7 @@ namespace AnglersEye.Core
     internal static class SmartBait
     {
         // The rod is drawn like a bow: StartDraw fires on draw, Start fires on release, so one cast
-        // can run the "needs bait" check twice. The strip already shows the same "needs ... ✖" line,
+        // can run the "needs bait" check twice. The panel already shows the same "needs ..." line,
         // so suppressing an identical repeat within this window loses nothing.
         private const float RepeatMessageAfter = 15f;
         private static string _lastMessageText;

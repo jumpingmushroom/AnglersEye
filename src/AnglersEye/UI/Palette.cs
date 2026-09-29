@@ -1,14 +1,31 @@
+using AnglersEye.Core.Model;
 using UnityEngine;
 
 namespace AnglersEye.UI
 {
     internal static class Palette
     {
-        public static readonly Color Idle = new Color(0.9f, 0.9f, 0.9f, 1f);
-        public static readonly Color Missing = new Color(0.95f, 0.45f, 0.4f, 1f);
-        public static readonly Color Calm = new Color(0.55f, 0.85f, 0.45f, 1f);
-        public static readonly Color Struggle = new Color(1f, 0.7f, 0.25f, 1f);
-        public static readonly Color Bite = new Color(1f, 0.9f, 0.4f, 1f);
-        public static readonly Color Backing = new Color(0f, 0f, 0f, 0.45f);
+        /// <summary>Warm off-white, like the HUD's own text.</summary>
+        public static readonly Color Normal = new Color(0.93f, 0.91f, 0.86f, 1f);
+        public static readonly Color Good = new Color(0.56f, 0.87f, 0.42f, 1f);
+        public static readonly Color Warn = new Color(1f, 0.71f, 0.24f, 1f);
+        public static readonly Color Bad = new Color(0.97f, 0.43f, 0.36f, 1f);
+        public static readonly Color Bite = new Color(1f, 0.9f, 0.3f, 1f);
+        /// <summary>Panel backing when the stamina bar's frame can't be borrowed.</summary>
+        public static readonly Color Frame = new Color(0f, 0f, 0f, 0.6f);
+        /// <summary>The empty part of the struggle bar.</summary>
+        public static readonly Color Track = new Color(0f, 0f, 0f, 0.55f);
+
+        public static Color For(Tone t)
+        {
+            switch (t)
+            {
+                case Tone.Good: return Good;
+                case Tone.Warn: return Warn;
+                case Tone.Bad: return Bad;
+                case Tone.Bite: return Bite;
+                default: return Normal;
+            }
+        }
     }
 }
