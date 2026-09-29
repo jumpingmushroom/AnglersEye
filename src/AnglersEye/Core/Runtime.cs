@@ -12,6 +12,7 @@ namespace AnglersEye.Core
 
         private static float _nextAim;
         private static FishSighting _aim;
+        private static BaitAdvice _aimAdvice;
 
         public static void Tick()
         {
@@ -82,6 +83,10 @@ namespace AnglersEye.Core
             {
                 _nextAim = Time.time + AimInterval;
                 _aim = Targeting.Aim(s.Player);
+                FishInfo aimedFish;
+                _aimAdvice = _aim != null && FishCatalog.All.TryGetValue(_aim.Species, out aimedFish)
+                    ? Tackle.Advise(s.Player, aimedFish)
+                    : null;
             }
             FishInfo target;
             if (_aim == null || !FishCatalog.All.TryGetValue(_aim.Species, out target))
@@ -89,7 +94,7 @@ namespace AnglersEye.Core
                 FishingPanel.Hide();
                 return;
             }
-            FishingPanel.Show(PanelView.Target(target.Name, _aim.Quality, Tackle.Advise(s.Player, target), PluginConfig.ShowOdds.Value));
+            FishingPanel.Show(PanelView.Target(target.Name, _aim.Quality, _aimAdvice, PluginConfig.ShowOdds.Value));
         }
 
         private static Verdict Forecast(FishingSnapshot s, Fish f, bool hooked)

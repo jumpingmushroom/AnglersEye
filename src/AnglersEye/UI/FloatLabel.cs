@@ -51,9 +51,14 @@ namespace AnglersEye.UI
             string onFloat = s.Float.GetBait();
             bool works = false;
             foreach (BaitOption b in info.Baits)
+            {
                 if (b.BaitId == onFloat)
+                {
                     works = true;
-            BaitAdvice best = BaitAdvisor.Advise(info.Baits, Tackle.Carried(s.Player));
+                    break;
+                }
+            }
+            BaitAdvice best = Tackle.Advise(s.Player, info);
             string needed = best != null ? best.Best.BaitName : "?";
 
             bool drawn = UiUtil.Stars(_root, StarPool, quality, 1, StarSize);
