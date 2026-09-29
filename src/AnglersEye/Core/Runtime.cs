@@ -56,6 +56,12 @@ namespace AnglersEye.Core
                 return;
             }
 
+            if (s.Float != null && BiteCue.Active)
+            {
+                Strip.Show(Labels.Bite(g), Palette.Bite);
+                return;
+            }
+
             if (s.Float != null)
             {
                 if (!Features.On(Feature.Forecast) && !Features.On(Feature.FloatLabel))
