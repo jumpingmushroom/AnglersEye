@@ -10,7 +10,12 @@ namespace AnglersEye.Core
     /// </summary>
     internal static class SmartBait
     {
-        private static float _lastMessage = -10f;
+        // The rod is drawn like a bow: StartDraw fires on draw, Start fires on release, so one cast
+        // can run the "needs bait" check twice. The strip already shows the same "needs ... ✖" line,
+        // so suppressing an identical repeat within this window loses nothing.
+        private const float RepeatMessageAfter = 15f;
+        private static string _lastMessageText;
+        private static float _lastMessageTime = -RepeatMessageAfter;
 
         public static void BeforeCast(Humanoid character, ItemDrop.ItemData weapon)
         {
@@ -28,11 +33,12 @@ namespace AnglersEye.Core
 
             if (!advice.Carried)
             {
-                // StartDraw and Start both run for one cast; say it once.
-                if (Time.time - _lastMessage > 2f)
+                string text = Labels.NeedsBait(info.Name, advice.Best.BaitName);
+                if (text != _lastMessageText || Time.time - _lastMessageTime > RepeatMessageAfter)
                 {
-                    _lastMessage = Time.time;
-                    p.Message(MessageHud.MessageType.Center, Labels.NeedsBait(info.Name, advice.Best.BaitName));
+                    _lastMessageText = text;
+                    _lastMessageTime = Time.time;
+                    p.Message(MessageHud.MessageType.Center, text);
                 }
                 return;
             }
