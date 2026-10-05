@@ -73,7 +73,7 @@ namespace AnglersEye.Core
             foreach (IMonoUpdater u in Fish.Instances)
             {
                 Fish f = u as Fish;
-                if (f == null || f.IsOutOfWater())
+                if (f == null || f.IsOutOfWater() || f.IsHooked())
                     continue;
                 // Only meaningful when we own the fish (its AI runs here); otherwise null (PLAN §1.1).
                 if (f.m_waypointFF == ff)

@@ -12,18 +12,20 @@ namespace AnglersEye.Core
         public List<BaitOption> Baits;
         public FishParams Params;
 
-        public string Name => Localization.instance != null ? Localization.instance.Localize(NameToken) : NameToken;
+        public string Name => FishCatalog.Localize(NameToken);
     }
 
     /// <summary>
     /// Every fish prefab's bait table and fight numbers, plus the float's reeling numbers, read
-    /// from ZNetScene at runtime (PLAN §1.1, §1.5) so modded fish work. Rebuilt per world.
+    /// from ZNetScene at runtime (PLAN §1.1, §1.5) so modded fish work. Rebuilt per world, and
+    /// when the language changes (bait names are stored localised).
     /// </summary>
     internal static class FishCatalog
     {
         private static readonly Dictionary<string, FishInfo> ByPrefab = new Dictionary<string, FishInfo>();
         private static readonly HashSet<string> BaitAmmoTypes = new HashSet<string>();
         private static ZNetScene _builtFor;
+        private static string _builtLanguage;
 
         public static RodParams Rod = new RodParams();
         public static float FloatRange = 10f;
@@ -41,7 +43,8 @@ namespace AnglersEye.Core
         public static void EnsureBuilt()
         {
             ZNetScene zs = ZNetScene.instance;
-            if (zs == null || zs == _builtFor)
+            string language = Localization.instance != null ? Localization.instance.GetSelectedLanguage() : null;
+            if (zs == null || (zs == _builtFor && language == _builtLanguage))
                 return;
             ByPrefab.Clear();
             BaitAmmoTypes.Clear();
@@ -57,6 +60,7 @@ namespace AnglersEye.Core
                     ReadFloat(ff);
             }
             _builtFor = zs;
+            _builtLanguage = language;
         }
 
         public static FishInfo For(Fish f)
@@ -93,9 +97,7 @@ namespace AnglersEye.Core
             {
                 if (b == null || b.m_bait == null)
                     continue;
-                string token = b.m_bait.m_itemData.m_shared.m_name;
-                string name = Localization.instance != null ? Localization.instance.Localize(token) : token;
-                baits.Add(new BaitOption(b.m_bait.name, name, b.m_chance));
+                baits.Add(new BaitOption(b.m_bait.name, Localize(b.m_bait.m_itemData.m_shared.m_name), b.m_chance));
                 string ammoType = b.m_bait.m_itemData.m_shared.m_ammoType;
                 if (!string.IsNullOrEmpty(ammoType))
                     BaitAmmoTypes.Add(ammoType);
@@ -116,6 +118,11 @@ namespace AnglersEye.Core
                     EscapeWaitMax = f.m_escapeWaitMax
                 }
             };
+        }
+
+        public static string Localize(string token)
+        {
+            return Localization.instance != null ? Localization.instance.Localize(token) : token;
         }
 
         private static void ReadFloat(FishingFloat ff)

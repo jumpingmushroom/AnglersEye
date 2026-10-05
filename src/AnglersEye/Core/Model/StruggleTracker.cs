@@ -9,24 +9,23 @@ namespace AnglersEye.Core.Model
     {
         private bool _wasEscaping;
         private float _lastRemaining;
+        private float _total;
 
-        /// <summary>The current (or last) struggle's total; 0 when nothing is hooked.</summary>
-        public float Total { get; private set; }
-
+        /// <summary>Feed one frame; returns the current (or last) struggle's total, 0 when nothing is hooked.</summary>
         public float Update(bool hasCatch, bool escaping, float remaining)
         {
             if (!hasCatch)
             {
-                Total = 0f;
+                _total = 0f;
                 _wasEscaping = false;
                 _lastRemaining = 0f;
-                return Total;
+                return _total;
             }
             if (escaping && (!_wasEscaping || remaining > _lastRemaining))
-                Total = remaining;
+                _total = remaining;
             _wasEscaping = escaping;
             _lastRemaining = remaining;
-            return Total;
+            return _total;
         }
     }
 }

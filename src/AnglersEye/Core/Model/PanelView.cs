@@ -51,7 +51,7 @@ namespace AnglersEye.Core.Model
         {
             if (a == null)
                 return new PanelView(name, quality, null, Tone.Normal, false, null, null);
-            string bait = a.Best.BaitName + (showOdds ? " " + Labels.Odds(a.Best.Chance) : "");
+            string bait = Labels.BaitName(a.Best, showOdds);
             return a.Carried
                 ? new PanelView(name, quality, bait + " (" + a.CarriedCount + ")", Tone.Normal, false, null, null)
                 : new PanelView(name, quality, "needs " + bait, Tone.Bad, false, null, null);

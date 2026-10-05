@@ -27,10 +27,16 @@ namespace AnglersEye.Core.Model
             return (int)Math.Round(chance * 100f) + "%";
         }
 
+        /// <summary>"Cold bait", or "Cold bait 60%" with showOdds.</summary>
+        public static string BaitName(BaitOption b, bool showOdds)
+        {
+            return b.BaitName + (showOdds ? " " + Odds(b.Chance) : "");
+        }
+
         /// <summary>"Cold bait + (x12)", "Cold bait 60% + (x12)" or "Cold bait ✖" (the HUD font lacks ✔, so it falls back to +).</summary>
         public static string Bait(BaitAdvice a, Glyphs g, bool showOdds)
         {
-            string s = a.Best.BaitName + (showOdds ? " " + Odds(a.Best.Chance) : "");
+            string s = BaitName(a.Best, showOdds);
             return a.Carried ? s + " " + g.Yes + " (x" + a.CarriedCount + ")" : s + " " + g.No;
         }
 

@@ -24,7 +24,8 @@ DLL="$ROOT/src/AnglersEye/bin/Release/net472/AnglersEye.dll"
 echo "==> building"
 dotnet build "$PROJ" -c Release --nologo -v minimal
 
-VERSION=$(python3 -c "import json;print(json.load(open('$ROOT/thunderstore/manifest.json'))['version_number'])")
+. "$ROOT/build/common.sh"
+VERSION=$(manifest_version "$ROOT")
 ASM_VERSION=$(grep -oP '(?<=PluginVersion = ")[^"]+' "$ROOT/src/AnglersEye/Plugin.cs")
 CSPROJ_VERSION=$(grep -oP '(?<=<Version>)[^<]+' "$PROJ")
 

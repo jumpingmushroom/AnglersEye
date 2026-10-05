@@ -18,6 +18,13 @@ namespace AnglersEye.Tests
         }
 
         [Fact]
+        public void BaitName_WithOptionalOdds()
+        {
+            Assert.Equal("Cold bait", Labels.BaitName(Cold, false));
+            Assert.Equal("Cold bait 60%", Labels.BaitName(Cold, true));
+        }
+
+        [Fact]
         public void Bait_CarriedAndMissing_WithOptionalOdds()
         {
             Assert.Equal("Cold bait ✔ (x12)", Labels.Bait(Carried, G, false));

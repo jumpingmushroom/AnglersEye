@@ -88,7 +88,7 @@ namespace AnglersEye
             ExtendedHookWindow = cfg.Bind("6 - Assists", "ExtendedHookWindow", false,
                 new ConfigDescription("Give yourself longer than vanilla's 0.5 s to hook a nibble.", null, Attr(49)));
             HookWindowSeconds = cfg.Bind("6 - Assists", "HookWindowSeconds", 1.0f,
-                new ConfigDescription("Hook window when ExtendedHookWindow is on.", new AcceptableValueRange<float>(0.5f, 1.5f), Attr(48)));
+                new ConfigDescription("Hook window when ExtendedHookWindow is on.", new AcceptableValueRange<float>(ReelPolicy.VanillaHookWindow, ReelPolicy.MaxHookWindow), Attr(48)));
 
             Scale = cfg.Bind("7 - UI", "Scale", 1f,
                 new ConfigDescription("Size of the fishing panel and the float label.", new AcceptableValueRange<float>(0.5f, 2f), Attr(40)));
