@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1 — fixes
+
+- The fishing panel and float label no longer name a fish someone else has hooked.
+- Bait names follow a change of game language without reloading the world.
+
 ## 0.1.0 — first cut
 
 - Fish identification: stars and bait (bait carried, with count, or ✖ if none) on a fish's hover

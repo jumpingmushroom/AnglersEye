@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>AnglersEye</AssemblyName>
     <RootNamespace>AnglersEye</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Description>A fishing assistant: fish ID, smart bait, bite and struggle cues, catch forecast. Client-side.</Description>
   </PropertyGroup>
 

@@ -17,7 +17,7 @@ namespace AnglersEye
     {
         public const string PluginGuid = "com.jumpingmushroom.anglerseye";
         public const string PluginName = "Angler's Eye";
-        public const string PluginVersion = "0.1.0";
+        public const string PluginVersion = "0.1.1";
 
         internal static ManualLogSource Log;
         internal static AnglersEyePlugin Instance;
